@@ -31,8 +31,9 @@ int fb_width, fb_height;
 
 int *framebuf;
   
-int root_x, root_y; //<--two
-unsigned int mask; //<--three
+int root_x, root_y;
+int mouse_x,mouse_y;
+unsigned int mask; 
     
 //---    
 
@@ -98,70 +99,58 @@ if (fb_image == 0)
     {
     printf("fb image is null!\n");
     }
-    
-    
-    //XQueryPointer(display, DefaultRootWindow(display), &root_window, &root_window, &root_x, &root_y, &root_x, &root_y, &mask); //<--four
-    
-    XQueryPointer(my_display, DefaultRootWindow(my_display), &root_window, &root_window, &root_x, &root_y, &root_x, &root_y, &mask); //<--four
 
-    printf("Mouse coordinates (X: %d, Y: %d)\n", root_x, root_y);
-
-     
-
-   
-
-    XSync(my_display, True);
+XSync(my_display, True); //wait for all requests to be completed
 
 //https://stackoverflow.com/questions/16122196/getting-mouseclick-coordinates-with-xlib
-    XSelectInput(my_display, my_win,ButtonReleaseMask| ExposureMask | KeyPressMask);
+XSelectInput(my_display, my_win,ButtonReleaseMask| ExposureMask | KeyPressMask);
 
-    XGCValues gcv;
-    unsigned long gcm;
-    GC NormalGC;
+XGCValues gcv;
+unsigned long gcm;
+GC NormalGC;
 
-    //gcm = GCForeground | GCBackground | GCGraphicsExposures;
-    //gcv.foreground = BlackPixel(my_display, parent);
-    //gcv.background = WhitePixel(my_display, parent);
-    gcm = GCGraphicsExposures;
-    gcv.graphics_exposures = 0;
-    NormalGC = XCreateGC(my_display, parent, gcm, &gcv);
+//gcm = GCForeground | GCBackground | GCGraphicsExposures;
+//gcv.foreground = BlackPixel(my_display, parent);
+//gcv.background = WhitePixel(my_display, parent);
+gcm = GCGraphicsExposures;
+gcv.graphics_exposures = 0;
+NormalGC = XCreateGC(my_display, parent, gcm, &gcv);
 
-    XMapWindow(my_display, my_win);
+XMapWindow(my_display, my_win); //creates a Graphic Context (so there)
     
- 
-
 /*    Just me poking about - find out and re-instate !!!!!!!!!! */
 
-    while(!XNextEvent(my_display, &event))
+/* Should we loop waiting for next event - or - make our own main (waiting) loop ???
+
+/*
+while(!XNextEvent(my_display, &event))
     {
-        switch(event.type)
+    switch(event.type)
         {
         case Expose:
             printf("I have been exposed!\n");
             //XPutImage(display, d, gc, image, src_x, src_y, dest_x, dest_y, width, height)
             XPutImage(my_display, my_win, NormalGC, fb_image, 0, 0, 100, 200, fb_width, fb_height);
             break;
-            default:
-                printf("Other \n");
+        default:
+            printf("Other \n");
         }
-        //https://stackoverflow.com/questions/16122196/getting-mouseclick-coordinates-with-xlib
-        XQueryPointer(my_display, DefaultRootWindow(my_display), &root_window, &root_window, &root_x, &root_y, &root_x, &root_y, &mask); //<--four
-
-    printf("Mouse coordinates (X: %d, Y: %d)\n", root_x, root_y);
+   
+    //XQueryPointer(display, w, root_return, child_return, root_x_return, root_y_return, win_x_return, win_y_return, mask_return)
+    XQueryPointer(my_display, DefaultRootWindow(my_display), &root_window, &root_window, &root_x, &root_y, &mouse_x, &mouse_y, &mask);
+    printf("Mouse coordinates (X: %d, Y: %d)\n", mouse_x, mouse_y);
     }
-
-//sleep(1); //this is guesswork
-
-//XPutImage(my_display, win, NormalGC, ximage, 0, 0, 0, 0, width, height);
+*/
+sleep(1); //this is guesswork
+XPutImage(my_display, my_win, NormalGC, fb_image, 0, 0, 100, 200, fb_width, fb_height);
 
 while(1)
-{
+    {
     sleep(1);
     printf(" Bug %d \n",bug++); 
-}
+    }
 
-    printf("No error\n");
-
-    return 0;
+printf("No error\n");
+return 0;
 }
 
