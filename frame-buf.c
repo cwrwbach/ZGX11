@@ -8,7 +8,30 @@
 
 //https://stackoverflow.com/questions/64521652/create-xlib-window-with-a-frame-buffer-i-can-draw-directly-and-use-xputimage
 
+#define WFALL_HEIGHT 400
+#define WFALL_WIDTH 1024
+
 int bug;
+
+int *framebuf;
+
+//===
+
+
+
+
+void wf_scroll_down()
+{
+//Scroll all wflines down, starting from the bottom
+    for(int ll = WFALL_HEIGHT; ll >=0 ; ll--)
+    {
+    for(int pp = 0;pp<WFALL_WIDTH;pp++)
+        {
+        framebuf[((ll+1)*WFALL_WIDTH)+WFALL_WIDTH+pp] = framebuf[((ll)* WFALL_WIDTH)+pp];
+        }
+    }
+}
+//===
 
 int main(int argc, char **argv)
 {
@@ -29,7 +52,7 @@ int depth;
 int my_win_height, my_win_width;
 int fb_width, fb_height;
 
-int *framebuf;
+//int *framebuf;
   
 int root_x, root_y;
 int mouse_x,mouse_y;
@@ -82,6 +105,8 @@ for (int i = 0; i < (fb_width*50); i++)
     {
     framebuf[i] = 0x00000000i+ i * 65536 ; //0x0000ff00;
     }
+
+
     
 my_win_width = 1224;
 my_win_height = 800;    
@@ -120,9 +145,9 @@ XMapWindow(my_display, my_win); //creates a Graphic Context (so there)
     
 /*    Just me poking about - find out and re-instate !!!!!!!!!! */
 
-/* Should we loop waiting for next event - or - make our own main (waiting) loop ???
-
+// Should we loop waiting for next event - or - make our own main (waiting) loop ???
 /*
+
 while(!XNextEvent(my_display, &event))
     {
     switch(event.type)
@@ -139,15 +164,22 @@ while(!XNextEvent(my_display, &event))
     //XQueryPointer(display, w, root_return, child_return, root_x_return, root_y_return, win_x_return, win_y_return, mask_return)
     XQueryPointer(my_display, DefaultRootWindow(my_display), &root_window, &root_window, &root_x, &root_y, &mouse_x, &mouse_y, &mask);
     printf("Mouse coordinates (X: %d, Y: %d)\n", mouse_x, mouse_y);
+    
+    wf_scroll_down();
+    
     }
 */
-sleep(1); //this is guesswork
-XPutImage(my_display, my_win, NormalGC, fb_image, 0, 0, 100, 200, fb_width, fb_height);
+
+//sleep(1); //this is guesswork
+//XPutImage(my_display, my_win, NormalGC, fb_image, 0, 0, 100, 200, fb_width, fb_height);
 
 while(1)
     {
-    sleep(1);
-    printf(" Bug %d \n",bug++); 
+    usleep(50000);
+    //printf(" Bug %d \n",bug++); 
+    
+    XPutImage(my_display, my_win, NormalGC, fb_image, 0, 0, 100, 200, fb_width, fb_height);
+    wf_scroll_down();
     }
 
 printf("No error\n");
